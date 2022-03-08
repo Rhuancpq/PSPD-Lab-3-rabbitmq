@@ -1,0 +1,12 @@
+services:
+  rabbit1:
+    image: "rabbitmq:3.9-management-alpine"
+    hostname: "rabbit1"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+      - "8080:8080"
+    labels:
+      NAME: "rabbitmq1"
+    volumes:
+      - "./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro"
