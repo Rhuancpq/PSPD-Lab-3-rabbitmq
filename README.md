@@ -1,0 +1,1 @@
+# PSPD-Lab-3-rabbitmq
