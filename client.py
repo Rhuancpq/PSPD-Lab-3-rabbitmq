@@ -9,7 +9,7 @@ import pika
 
 MAX_POSITIONS = 100
 
-connection = pika.BaseConnection(
+connection = pika.BlockingConnection(
     pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
 
@@ -65,6 +65,7 @@ resp_packets = []
 received_packets = 0
 received_packets_lock = Lock()
 def callback(ch, method, properties, body):
+    global received_packets, received_packets_lock, resp_packets
     # parse json from body
     body = json.loads(body)
     # get data from body
@@ -79,6 +80,7 @@ def callback(ch, method, properties, body):
 channel.basic_consume(queue='result_queue', on_message_callback=callback, auto_ack=True)
 
 def stop_consuming_thread():
+    global channel, received_packets, received_packets_lock, resp_packets
     while True:
         received_packets_lock.acquire()
         if received_packets == len(packets):
