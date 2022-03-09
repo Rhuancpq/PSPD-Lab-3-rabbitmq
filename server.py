@@ -1,6 +1,20 @@
 import json
 import pika, sys, os
 
+connection = pika.BlockingConnection(
+    pika.ConnectionParameters(host='localhost'))
+channel = connection.channel()
+
+def get_minor_major(data):
+    return [max(data), min(data)]
+
+def send_response(payload):
+    string_payload = json.dumps(payload)
+    channel.basic_publish(exchange='',
+                      routing_key='result_queue',
+                      body=string_payload)
+    print(" [x] Sent response: " + str(payload["data"]))
+
 def main():
     connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
     channel = connection.channel()
@@ -12,6 +26,8 @@ def main():
         print(" [x] Received packet from client: " + str(body['client_id']))
         data = body['data']
         print(data)
+        body["data"] = get_minor_major(data)
+        send_response(body)
 
     channel.basic_consume(queue='task_queue', on_message_callback=callback, auto_ack=True)
 
